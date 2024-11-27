@@ -6,6 +6,8 @@ import DashBoard from "./pages/DashBoard";
 import SignUppage from "./pages/SignUppage";
 import UploadPage from "./pages/UploadPage";
 import AllDocuments from "./pages/AllDocuments";
+import AdminLogin from "./pages/AdminLogin";
+import AdminDashboard from "./pages/AdminDashboard";
 function App() {
   const router = createBrowserRouter([
     {
@@ -27,6 +29,14 @@ function App() {
     {
       path: "/all_documents",
       element: <AllDocuments />,
+    },
+    {
+      path: "/admin-login",
+      element: <AdminLogin />,
+    },
+    {
+      path: "/adminDashboard",
+      element: <AdminDashboard />,
     },
   ]);
   return <RouterProvider router={router} />;

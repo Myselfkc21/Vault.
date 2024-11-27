@@ -53,6 +53,7 @@ app.post("/login", async (req, res) => {
     const checkUser = await pool.query("SELECT * FROM users WHERE email=$1", [
       email,
     ]);
+    console.log("checkUser", checkUser);
 
     if (checkUser.rows.length === 0) {
       return res.status(400).json({ message: "Sign up first" });
@@ -82,10 +83,14 @@ app.post("/login", async (req, res) => {
 
 app.get("/dashboard", authenticateJWT, (req, res) => {
   const { file_name, upload_data, file } = req.body;
-  console.log(file_name, upload_data, file);
+  // console.log(file_name, upload_data, file);
 });
 
-app.post("/upload", authenticateJWT, upload.single("file"), async (req, res) => {
+app.post(
+  "/upload",
+  authenticateJWT,
+  upload.single("file"),
+  async (req, res) => {
     console.log(req.file);
     const { filename, shortdescription, filetype } = req.body;
     console.log(filename, shortdescription, filetype);
@@ -98,7 +103,7 @@ app.post("/upload", authenticateJWT, upload.single("file"), async (req, res) => 
       const user_id = req.user.id;
       const access_level = "user";
       const short_description = shortdescription;
-      console.log(user_id);
+      // console.log(user_id);
       const result = await pool.query(
         "INSERT INTO files (file_id,user_id,file_name, file_type,file_size,uploaded_at, access_level, file_path,file_desc) VALUES (default ,$1, $2, $3, $4,$5,$6,$7,$8) RETURNING *",
         [
@@ -186,9 +191,17 @@ app.get("/files/:file_id", authenticateJWT, async (req, res) => {
 
 app.delete("/files/:file_id", authenticateJWT, async (req, res) => {
   const file_id = req.params.file_id;
-  const result = await pool.query("DELETE FROM files WHERE file_id=$1", [
-    file_id,
-  ]);
+  const result = await pool.query(
+    "DELETE FROM files WHERE file_id=$1 returning *",
+    [file_id]
+  );
+  const filePath = path.join(__dirname, result.rows[0].file_path);
+  console.log(filePath);
+  fs.unlink(filePath, (err) => {
+    if (err) {
+      return res.status(500).json({ message: "Error deleting file" });
+    }
+  });
   return res.status(200).json({ message: "File deleted successfully" });
 });
 
@@ -204,6 +217,108 @@ app.get("/get_user", authenticateJWT, async (req, res) => {
   }
 });
 
+app.post("/admin_login", async (req, res) => {
+  const { email, code } = req.body;
+  try {
+    const result = await pool.query(
+      "SELECT * FROM admins WHERE email=$1 AND code=$2",
+      [email, code]
+    );
+    const token = jwt.sign(
+      { id: result.rows[0].id, email: result.rows[0].email },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: process.env.JWT_EXPIRES_IN,
+      }
+    );
+
+    res.status(200).json({ message: "Login successful", token });
+  } catch (error) {
+    return res.status(500).json({ message: "Server error" });
+  }
+});
+
+app.get("/admin_dashboard", authenticateJWT, async (req, res) => {
+  try {
+    const users = await pool.query("SELECT * FROM users");
+    const files = await pool.query("SELECT * FROM files");
+    const username = await pool.query("SELECT id, fullname, email FROM users");
+    const updates = await pool.query(
+      "SELECT user_id, uploaded_at FROM files ORDER BY uploaded_at DESC LIMIT 5"
+    );
+
+    const username_updates = await Promise.all(
+      updates.rows.map(async (update) => {
+        const userResult = await pool.query(
+          "SELECT fullname FROM users WHERE id=$1",
+          [update.user_id]
+        );
+        return {
+          ...update,
+          username: userResult.rows[0]?.fullname || "Unknown User", // Fallback if no user is found
+        };
+      })
+    );
+
+    return res.status(200).json({
+      users: users.rows,
+      files: files.rows,
+      userDetails: username.rows,
+      updates: username_updates,
+    });
+  } catch (error) {
+    console.error("Error:", error);
+    return res.status(500).json({ message: "Server error" });
+  }
+});
+
+app.post("/logout", authenticateJWT, async (req, res) => {
+  res.clearCookie("token");
+  return res.status(200).json({ message: "Logout successful" });
+});
+
+app.delete("/delete_user", authenticateJWT, async (req, res) => {
+  try {
+    const user_id = req.body.user_id;
+    // console.log(user_id);
+    const result = await pool.query(
+      "DELETE FROM users WHERE id=$1 returning *",
+      [user_id]
+    );
+
+    const files = await pool.query("select * FROM files WHERE user_id=$1", [
+      user_id,
+    ]);
+
+    console.log("files it is ", files.rows);
+
+    const filePath = path.join(__dirname, files.rows[0].file_path);
+    // console.log("file path", files.rows);
+    console.log(filePath);
+    fs.unlink(filePath, (err) => {
+      if (err) {
+        return res.status(500).json({ message: "Error deleting file" });
+      }
+    });
+
+    return res.status(200).json({ message: "User deleted successfully" });
+  } catch (error) {
+    return res.status(500).json({ message: "Server error" });
+  }
+});
+
+app.post("/search", authenticateJWT, async (req, res) => {
+  try {
+    const searchTerm = req.body.searchTerm;
+    const result = await pool.query(
+      "SELECT * FROM files WHERE lower(file_name) LIKE $1",
+      [`%${searchTerm}%`]
+    );
+    return res.status(200).json({ files: result.rows });
+  } catch (error) {
+    return res.status(500).json({ message: "no files exists" });
+  }
+});
 app.listen(3000, () => {
   console.log("Server is running on port 3000");
 });

@@ -6,13 +6,13 @@ const AllDocuments = () => {
   const [files, setFiles] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("name");
-  const [pinned, setPinned] = useState(false);
+  const [pinned, setPinned] = useState(true);
   const [error, setError] = useState(null);
   const [user, setUser] = useState("A");
 
   const getUser = async () => {
     const response = await axiosInstance.get("/get_user");
-    setUser(response.data.user);
+    setUser(response.data.user.fullname);
   };
 
   const handleDownload = async (file_id) => {
@@ -67,6 +67,17 @@ const AllDocuments = () => {
     setError(error.response.data.message);
   };
 
+  const handleSearch = async () => {
+    try {
+      const response = await axiosInstance.post("/search", {
+        searchTerm,
+      });
+      setFiles(response.data.files);
+    } catch (error) {
+      setError(error.response.data.message);
+    }
+  };
+
   useEffect(() => {
     // Fetch files logic would go here
     const fetchFiles = async () => {
@@ -75,6 +86,7 @@ const AllDocuments = () => {
       console.log(response.data.files);
     };
     fetchFiles();
+    getUser();
   }, [pinned]);
 
   return (
@@ -98,7 +110,10 @@ const AllDocuments = () => {
               placeholder="Search documents..."
               className="pl-10 pr-4 py-3 bg-stone-900/50 border border-emerald-800/30 rounded-xl text-stone-200 placeholder:text-stone-500 focus:outline-none focus:ring-2 focus:ring-emerald-700/50 focus:border-transparent transition-all duration-300 w-72"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => {
+                setSearchTerm(e.target.value.toLocaleLowerCase());
+                handleSearch();
+              }}
             />
             <svg
               className="w-5 h-5 text-stone-500 absolute left-3 top-3.5"

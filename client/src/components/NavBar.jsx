@@ -1,4 +1,5 @@
 import React from "react";
+import axiosInstance from "../utils/axiosInstancs";
 
 const NavBar = ({ user }) => {
   return (
@@ -54,20 +55,59 @@ const NavBar = ({ user }) => {
               </svg>
             </button>
             <div className="h-8 w-px bg-emerald-800/20"></div>
-            <button className="flex items-center space-x-2 text-stone-300 hover:text-emerald-300 transition-colors duration-300">
-              <div
-                alt="profile"
-                className="w-auto h-auto p-2 flex items-center justify-center rounded-full border border-emerald-800/20"
-              >
-                <h2 className="text-xl">
-                  {user
-                    .split(" ")
-                    .map((name) => name[0])
-                    .join("")}
-                </h2>
+            <div className="relative group">
+              <button className="flex items-center space-x-2 text-stone-300 hover:text-emerald-300 transition-colors duration-300">
+                <div
+                  alt="profile"
+                  className="w-auto h-auto p-2 flex items-center justify-center rounded-full border border-emerald-800/20"
+                >
+                  <h2 className="text-xl">
+                    {user
+                      .split(" ")
+                      .map((name) => name[0])
+                      .join("")}
+                  </h2>
+                </div>
+                <span className="font-serif">{user}</span>
+                <svg
+                  className="w-4 h-4 ml-1"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </button>
+
+              {/* Dropdown Menu */}
+              <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-stone-800 ring-1 ring-emerald-800/20 invisible group-hover:visible transition-all duration-300">
+                <div className="py-1">
+                  <a
+                    href="/profile"
+                    className="block px-4 py-2 text-sm text-stone-300 hover:bg-emerald-900/20 hover:text-emerald-300"
+                  >
+                    Profile
+                  </a>
+                  <button
+                    onClick={() => {
+                      // Handle logout here
+                      axiosInstance.post("/logout").then(() => {
+                        localStorage.removeItem("token");
+                        window.location.href = "/";
+                      });
+                    }}
+                    className="block w-full text-left px-4 py-2 text-sm text-stone-300 hover:bg-emerald-900/20 hover:text-emerald-300"
+                  >
+                    Logout
+                  </button>
+                </div>
               </div>
-              <span className="font-serif">{user}</span>
-            </button>
+            </div>
           </div>
         </div>
       </div>

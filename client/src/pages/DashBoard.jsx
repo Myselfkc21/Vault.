@@ -129,113 +129,122 @@ const DashBoard = () => {
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* File Card Component */}
-            {files.map((file, id) => (
-              <div
-                key={id}
-                className="bg-gradient-to-br from-stone-900/80 to-stone-900/60 backdrop-blur-xl rounded-2xl p-6 hover:from-stone-800/80 hover:to-stone-800/60 transition-all duration-300 group hover:shadow-xl hover:shadow-emerald-900/40 border border-emerald-800/20 hover:border-emerald-700/30"
-              >
-                <div className="flex items-center justify-between mb-5">
-                  <div className="flex items-center space-x-4">
-                    <div className="p-3 bg-gradient-to-br from-emerald-900/30 to-emerald-800/20 rounded-xl group-hover:from-emerald-800/40 group-hover:to-emerald-700/30 transition-all duration-300 shadow-inner">
-                      <svg
-                        className="w-8 h-8 text-emerald-400 group-hover:text-emerald-300 transform group-hover:scale-110 transition-all duration-300"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                        />
-                      </svg>
+          {files.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-stone-300 text-xl font-serif">
+                Welcome! Please upload a file to get started.
+              </p>
+              <p className="text-stone-400 mt-2">
+                Click the "Upload Document" button above to begin.
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {/* File Card Component */}
+              {files.map((file, id) => (
+                <div
+                  key={id}
+                  className="bg-gradient-to-br from-stone-900/80 to-stone-900/60 backdrop-blur-xl rounded-2xl p-6 hover:from-stone-800/80 hover:to-stone-800/60 transition-all duration-300 group hover:shadow-xl hover:shadow-emerald-900/40 border border-emerald-800/20 hover:border-emerald-700/30"
+                >
+                  <div className="flex items-center justify-between mb-5">
+                    <div className="flex items-center space-x-4">
+                      <div className="p-3 bg-gradient-to-br from-emerald-900/30 to-emerald-800/20 rounded-xl group-hover:from-emerald-800/40 group-hover:to-emerald-700/30 transition-all duration-300 shadow-inner">
+                        <svg
+                          className="w-8 h-8 text-emerald-400 group-hover:text-emerald-300 transform group-hover:scale-110 transition-all duration-300"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                          />
+                        </svg>
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-serif text-stone-100 group-hover:text-emerald-300 transition-colors duration-300 tracking-wide">
+                          {file.file_name}
+                        </h3>
+                        <p className="text-sm text-stone-400 font-light tracking-wide mt-1">
+                          {Math.floor(file.file_size / 1024)}MB •{" "}
+                          {file.file_type} Document
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="text-lg font-serif text-stone-100 group-hover:text-emerald-300 transition-colors duration-300 tracking-wide">
-                        {file.file_name}
-                      </h3>
-                      <p className="text-sm text-stone-400 font-light tracking-wide mt-1">
-                        {Math.floor(file.file_size / 1024)}MB • {file.file_type}{" "}
-                        Document
-                      </p>
+                    <div className="flex space-x-1">
+                      <button
+                        onClick={() => handlePinned(file.file_id)}
+                        className="p-2.5 text-stone-400 hover:text-emerald-300 hover:bg-emerald-900/30 rounded-lg transition-all duration-300 transform hover:scale-105"
+                      >
+                        <svg
+                          className="w-5 h-5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                          />
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                          />
+                        </svg>
+                      </button>
+                      <button
+                        onClick={() => handleDownload(file.file_id)}
+                        className="p-2.5 text-stone-400 hover:text-emerald-300 hover:bg-emerald-900/30 rounded-lg transition-all duration-300 transform hover:scale-105"
+                      >
+                        <svg
+                          className="w-5 h-5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                          />
+                        </svg>
+                      </button>
+                      <button
+                        onClick={() => handleDelete(file.file_id)}
+                        className="p-2.5 text-stone-400 hover:text-red-400 hover:bg-red-900/30 rounded-lg transition-all duration-300 transform hover:scale-105"
+                      >
+                        <svg
+                          className="w-5 h-5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                          />
+                        </svg>
+                      </button>
                     </div>
                   </div>
-                  <div className="flex space-x-1">
-                    <button
-                      onClick={() => handlePinned(file.file_id)}
-                      className="p-2.5 text-stone-400 hover:text-emerald-300 hover:bg-emerald-900/30 rounded-lg transition-all duration-300 transform hover:scale-105"
-                    >
-                      <svg
-                        className="w-5 h-5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                        />
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                        />
-                      </svg>
-                    </button>
-                    <button
-                      onClick={() => handleDownload(file.file_id)}
-                      className="p-2.5 text-stone-400 hover:text-emerald-300 hover:bg-emerald-900/30 rounded-lg transition-all duration-300 transform hover:scale-105"
-                    >
-                      <svg
-                        className="w-5 h-5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                        />
-                      </svg>
-                    </button>
-                    <button
-                      onClick={() => handleDelete(file.file_id)}
-                      className="p-2.5 text-stone-400 hover:text-red-400 hover:bg-red-900/30 rounded-lg transition-all duration-300 transform hover:scale-105"
-                    >
-                      <svg
-                        className="w-5 h-5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                        />
-                      </svg>
-                    </button>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-stone-500 font-light tracking-wide bg-stone-800/40 px-3 py-1 rounded-full">
+                      Uploaded on {formatDate(file.uploaded_at)}
+                    </span>
                   </div>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-stone-500 font-light tracking-wide bg-stone-800/40 px-3 py-1 rounded-full">
-                    Uploaded on {formatDate(file.uploaded_at)}
-                  </span>
-                </div>
-              </div>
-            ))}
-            {/* Repeat similar structure for other files with improved hover states and interactions */}
-            {/* Additional file cards would go here */}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

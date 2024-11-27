@@ -5,12 +5,16 @@ const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [code, setCode] = useState("");
   const navigate = useNavigate();
   const handleSubmit = async (e) => {
     setError("");
     e.preventDefault();
     console.log(email, password);
-    const response = await axiosInstance.post("/login", { email, password });
+    const response = await axiosInstance.post("/login", {
+      email,
+      password,
+    });
     console.log(response);
     if (response.status === 200) {
       localStorage.setItem("token", response.data.token);
@@ -81,6 +85,12 @@ const LoginPage = () => {
               Forgot password?
             </a>
             {error && <p className="text-red-500">{error}</p>}
+            <a
+              href="/admin-login"
+              className="text-emerald-200/70 hover:text-emerald-100 transition-colors duration-300 font-serif"
+            >
+              Admin?
+            </a>
           </div>
 
           <button
