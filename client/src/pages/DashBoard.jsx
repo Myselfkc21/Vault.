@@ -102,15 +102,15 @@ const DashBoard = () => {
   return (
     <div>
       <NavBar user={user} />
-      <div className="min-h-screen bg-gradient-to-br from-emerald-950 via-stone-900 to-emerald-950 p-8 pt-24">
+      <div className="min-h-screen bg-gradient-to-br from-sky-100 via-blue-50 to-sky-100 p-8 pt-24">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-8">
-            <h1 className="text-4xl font-serif text-stone-200">
+            <h1 className="text-4xl font-serif text-slate-800">
               Your Documents
             </h1>
             <button
               onClick={handleUpload}
-              className="flex items-center px-6 py-3 bg-emerald-800 hover:bg-emerald-700 text-stone-200 rounded-lg transition-colors duration-300 font-serif"
+              className="flex items-center px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors duration-300 font-serif"
             >
               <svg
                 className="w-5 h-5 mr-2"
@@ -131,10 +131,10 @@ const DashBoard = () => {
 
           {files.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-stone-300 text-xl font-serif">
+              <p className="text-slate-700 text-xl font-serif">
                 Welcome! Please upload a file to get started.
               </p>
-              <p className="text-stone-400 mt-2">
+              <p className="text-slate-500 mt-2">
                 Click the "Upload Document" button above to begin.
               </p>
             </div>
@@ -144,13 +144,13 @@ const DashBoard = () => {
               {files.map((file, id) => (
                 <div
                   key={id}
-                  className="bg-gradient-to-br from-stone-900/80 to-stone-900/60 backdrop-blur-xl rounded-2xl p-6 hover:from-stone-800/80 hover:to-stone-800/60 transition-all duration-300 group hover:shadow-xl hover:shadow-emerald-900/40 border border-emerald-800/20 hover:border-emerald-700/30"
+                  className="bg-white/80 backdrop-blur-xl rounded-2xl p-6 hover:bg-white transition-all duration-300 group hover:shadow-xl hover:shadow-blue-100 border border-blue-100 hover:border-blue-300"
                 >
                   <div className="flex items-center justify-between mb-5">
                     <div className="flex items-center space-x-4">
-                      <div className="p-3 bg-gradient-to-br from-emerald-900/30 to-emerald-800/20 rounded-xl group-hover:from-emerald-800/40 group-hover:to-emerald-700/30 transition-all duration-300 shadow-inner">
+                      <div className="p-3 bg-gradient-to-br from-blue-100 to-sky-50 rounded-xl group-hover:from-blue-200 group-hover:to-sky-100 transition-all duration-300 shadow-inner">
                         <svg
-                          className="w-8 h-8 text-emerald-400 group-hover:text-emerald-300 transform group-hover:scale-110 transition-all duration-300"
+                          className="w-8 h-8 text-blue-500 group-hover:text-blue-600 transform group-hover:scale-110 transition-all duration-300"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -164,10 +164,10 @@ const DashBoard = () => {
                         </svg>
                       </div>
                       <div>
-                        <h3 className="text-lg font-serif text-stone-100 group-hover:text-emerald-300 transition-colors duration-300 tracking-wide">
+                        <h3 className="text-lg font-serif text-slate-800 group-hover:text-blue-600 transition-colors duration-300 tracking-wide">
                           {file.file_name}
                         </h3>
-                        <p className="text-sm text-stone-400 font-light tracking-wide mt-1">
+                        <p className="text-sm text-slate-500 font-light tracking-wide mt-1">
                           {Math.floor(file.file_size / 1024)}MB •{" "}
                           {file.file_type} Document
                         </p>
@@ -176,7 +176,7 @@ const DashBoard = () => {
                     <div className="flex space-x-1">
                       <button
                         onClick={() => handlePinned(file.file_id)}
-                        className="p-2.5 text-stone-400 hover:text-emerald-300 hover:bg-emerald-900/30 rounded-lg transition-all duration-300 transform hover:scale-105"
+                        className="p-2.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-300 transform hover:scale-105"
                       >
                         <svg
                           className="w-5 h-5"
@@ -200,7 +200,7 @@ const DashBoard = () => {
                       </button>
                       <button
                         onClick={() => handleDownload(file.file_id)}
-                        className="p-2.5 text-stone-400 hover:text-emerald-300 hover:bg-emerald-900/30 rounded-lg transition-all duration-300 transform hover:scale-105"
+                        className="p-2.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-300 transform hover:scale-105"
                       >
                         <svg
                           className="w-5 h-5"
@@ -218,7 +218,7 @@ const DashBoard = () => {
                       </button>
                       <button
                         onClick={() => handleDelete(file.file_id)}
-                        className="p-2.5 text-stone-400 hover:text-red-400 hover:bg-red-900/30 rounded-lg transition-all duration-300 transform hover:scale-105"
+                        className="p-2.5 text-slate-500 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all duration-300 transform hover:scale-105"
                       >
                         <svg
                           className="w-5 h-5"
@@ -237,7 +237,7 @@ const DashBoard = () => {
                     </div>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-stone-500 font-light tracking-wide bg-stone-800/40 px-3 py-1 rounded-full">
+                    <span className="text-sm text-slate-500 font-light tracking-wide bg-slate-100 px-3 py-1 rounded-full">
                       Uploaded on {formatDate(file.uploaded_at)}
                     </span>
                   </div>

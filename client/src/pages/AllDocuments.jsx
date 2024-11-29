@@ -6,7 +6,6 @@ const AllDocuments = () => {
   const [files, setFiles] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("name");
-  const [pinned, setPinned] = useState(true);
   const [error, setError] = useState(null);
   const [user, setUser] = useState("A");
 
@@ -50,21 +49,26 @@ const AllDocuments = () => {
     }
   };
 
-  const handlePinned = async (file_id) => {
-    console.log(file_id);
+  const handlePinned = async (file_id, currentPinned) => {
     try {
       const response = await axiosInstance.post("/pin_file", {
         file_id,
-        pinned,
+        pinned: !currentPinned // Toggle the current pinned state
       });
-      console.log("helloo", response);
+      
       if (response.status === 200) {
-        setPinned(!pinned);
+        // Update the files state to reflect the new pinned status
+        setFiles(files.map(file => {
+          if (file.file_id === file_id) {
+            return { ...file, pinned: !file.pinned };
+          }
+          return file;
+        }));
       }
     } catch (error) {
       console.error("File pinning failed:", error);
+      setError(error.response?.data?.message || "Failed to pin file");
     }
-    setError(error.response.data.message);
   };
 
   const handleSearch = async () => {
@@ -87,19 +91,19 @@ const AllDocuments = () => {
     };
     fetchFiles();
     getUser();
-  }, [pinned]);
+  }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-stone-950 via-emerald-950 to-stone-950">
+    <div className="min-h-screen bg-gradient-to-br from-sky-100 via-blue-50 to-sky-100">
       <NavBar user={user} />
 
       <div className="pt-24 px-8 max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-center mb-12">
           <div>
-            <h1 className="text-4xl font-serif text-stone-100 tracking-tight mb-2">
+            <h1 className="text-4xl font-serif text-slate-800 tracking-tight mb-2">
               Document Library
             </h1>
-            <p className="text-emerald-300/70 font-light tracking-widest uppercase text-xs">
+            <p className="text-blue-600/70 font-light tracking-widest uppercase text-xs">
               All your important files in one place
             </p>
           </div>
@@ -108,7 +112,7 @@ const AllDocuments = () => {
             <input
               type="text"
               placeholder="Search documents..."
-              className="pl-10 pr-4 py-3 bg-stone-900/50 border border-emerald-800/30 rounded-xl text-stone-200 placeholder:text-stone-500 focus:outline-none focus:ring-2 focus:ring-emerald-700/50 focus:border-transparent transition-all duration-300 w-72"
+              className="pl-10 pr-4 py-3 bg-white/80 border border-blue-200 rounded-xl text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition-all duration-300 w-72"
               value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value.toLocaleLowerCase());
@@ -116,7 +120,7 @@ const AllDocuments = () => {
               }}
             />
             <svg
-              className="w-5 h-5 text-stone-500 absolute left-3 top-3.5"
+              className="w-5 h-5 text-slate-400 absolute left-3 top-3.5"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -135,13 +139,13 @@ const AllDocuments = () => {
           {files.map((file, id) => (
             <div
               key={id}
-              className="group bg-stone-900/40 backdrop-blur-xl rounded-2xl p-6 hover:bg-stone-800/50 transition-all duration-500 border border-emerald-900/20 hover:border-emerald-700/30 hover:shadow-lg hover:shadow-emerald-900/20"
+              className="group bg-white/80 backdrop-blur-xl rounded-2xl p-6 hover:bg-white transition-all duration-500 border border-blue-100 hover:border-blue-300 hover:shadow-lg hover:shadow-blue-100"
             >
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-4">
-                  <div className="p-3 bg-gradient-to-br from-emerald-900/30 to-stone-900/30 rounded-xl group-hover:from-emerald-800/40 group-hover:to-stone-800/40 transition-all duration-300">
+                  <div className="p-3 bg-gradient-to-br from-blue-100 to-sky-50 rounded-xl group-hover:from-blue-200 group-hover:to-sky-100 transition-all duration-300">
                     <svg
-                      className="w-8 h-8 text-emerald-400 group-hover:text-emerald-300 transform group-hover:scale-110 transition-all duration-300"
+                      className="w-8 h-8 text-blue-500 group-hover:text-blue-600 transform group-hover:scale-110 transition-all duration-300"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -155,10 +159,10 @@ const AllDocuments = () => {
                     </svg>
                   </div>
                   <div>
-                    <h3 className="text-lg font-serif text-stone-100 group-hover:text-emerald-100 transition-colors duration-300">
+                    <h3 className="text-lg font-serif text-slate-700 group-hover:text-blue-600 transition-colors duration-300">
                       {file.file_name}
                     </h3>
-                    <p className="text-sm text-stone-400 mt-1 font-light">
+                    <p className="text-sm text-slate-500 mt-1 font-light">
                       {Math.floor(file.file_size / 1024)}MB • {file.file_type}
                     </p>
                   </div>
@@ -167,14 +171,14 @@ const AllDocuments = () => {
                   <div>
                     <button
                       onClick={(e) => {
-                        // e.stopPropagation();
-                        handlePinned(file.file_id);
+                        e.stopPropagation();
+                        handlePinned(file.file_id, file.pinned);
                       }}
                       className={`p-2 ${
                         file.pinned
-                          ? "text-emerald-300 bg-emerald-900/30"
-                          : "text-stone-400"
-                      } hover:bg-emerald-900/30 rounded-lg transition-all duration-300`}
+                          ? "text-blue-500 bg-blue-100"
+                          : "text-slate-400"
+                      } hover:bg-blue-100 rounded-lg transition-all duration-300`}
                     >
                       <svg
                         className="w-5 h-5"
@@ -196,7 +200,7 @@ const AllDocuments = () => {
                       e.stopPropagation();
                       handleDownload(file.file_id);
                     }}
-                    className="p-2 text-stone-400 hover:text-emerald-300 hover:bg-emerald-900/30 rounded-lg transition-all duration-300"
+                    className="p-2 text-slate-400 hover:text-blue-500 hover:bg-blue-100 rounded-lg transition-all duration-300"
                   >
                     <svg
                       className="w-5 h-5"

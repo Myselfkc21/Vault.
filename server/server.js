@@ -277,32 +277,55 @@ app.post("/logout", authenticateJWT, async (req, res) => {
   return res.status(200).json({ message: "Logout successful" });
 });
 
+//admin delete still unable to delete the files yet locally
 app.delete("/delete_user", authenticateJWT, async (req, res) => {
   try {
     const user_id = req.body.user_id;
-    // console.log(user_id);
-    const result = await pool.query(
-      "DELETE FROM users WHERE id=$1 returning *",
+
+    // Delete user from the users table
+    const userResult = await pool.query(
+      "DELETE FROM users WHERE id=$1 RETURNING *",
       [user_id]
     );
 
-    const files = await pool.query("select * FROM files WHERE user_id=$1", [
-      user_id,
-    ]);
+    if (userResult.rowCount === 0) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
-    console.log("files it is ", files.rows);
+    // Fetch and delete associated files
+    const fileResults = await pool.query(
+      "DELETE FROM files WHERE user_id=$1 RETURNING *",
+      [user_id]
+    );
 
-    const filePath = path.join(__dirname, files.rows[0].file_path);
-    // console.log("file path", files.rows);
-    console.log(filePath);
-    fs.unlink(filePath, (err) => {
-      if (err) {
-        return res.status(500).json({ message: "Error deleting file" });
-      }
+    if (fileResults.rows.length === 0) {
+      return res
+        .status(200)
+        .json({ message: "User deleted, no files to delete" });
+    }
+
+    // Iterate over all files and delete them
+    const deletionPromises = fileResults.rows.map((file) => {
+      const filePath = path.join(__dirname, file.file_path);
+      return new Promise((resolve, reject) => {
+        fs.unlink(filePath, (err) => {
+          if (err) {
+            console.error(`Error deleting file ${filePath}:`, err);
+            return reject(err);
+          }
+          resolve();
+        });
+      });
     });
 
-    return res.status(200).json({ message: "User deleted successfully" });
+    // Wait for all deletions to complete
+    await Promise.all(deletionPromises);
+
+    return res
+      .status(200)
+      .json({ message: "User and files deleted successfully" });
   } catch (error) {
+    console.error("Error during delete_user:", error);
     return res.status(500).json({ message: "Server error" });
   }
 });
@@ -310,15 +333,117 @@ app.delete("/delete_user", authenticateJWT, async (req, res) => {
 app.post("/search", authenticateJWT, async (req, res) => {
   try {
     const searchTerm = req.body.searchTerm;
+    const user_id = req.user.id;
     const result = await pool.query(
-      "SELECT * FROM files WHERE lower(file_name) LIKE $1",
-      [`%${searchTerm}%`]
+      "SELECT * FROM files WHERE lower(file_name) LIKE $1 and user_id=$2",
+      [`%${searchTerm}%`, user_id]
     );
     return res.status(200).json({ files: result.rows });
   } catch (error) {
     return res.status(500).json({ message: "no files exists" });
   }
 });
+
+// -----------------Active Jobs Dashboard -----------------
+app.post("/upload_jobs", authenticateJWT, async (req, res) => {
+  console.log("Uploading jobs...");
+  try {
+    const {
+      user_id,
+      job_title,
+      client_bill,
+      pay_rate,
+      client,
+      end_client,
+      location,
+      status,
+      job_description,
+      job_code,
+      priority,
+    } = req.body;
+
+    const created_at = new Date();
+    const result = await pool.query(
+      "INSERT INTO jobs (job_id, user_id, job_title, client_bill, pay_rate, client, end_client, location, status, job_description, job_code, created_at, priority) VALUES (default, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *",
+      [
+        user_id,
+        job_title,
+        client_bill,
+        pay_rate,
+        client,
+        end_client,
+        location,
+        status,
+        job_description,
+        job_code,
+        created_at,
+        priority,
+      ]
+    );
+    return res.status(200).json({ message: "Job uploaded successfully" });
+  } catch (error) {
+    console.error("Error uploading job:", error); // Improved error logging
+    return res
+      .status(500)
+      .json({ message: "Server error", error: error.message });
+  }
+});
+
+app.get("/get_all_jobs", authenticateJWT, async (req, res) => {
+  const user_id = req.user.id;
+  const result = await pool.query("SELECT * FROM jobs WHERE user_id=$1", [
+    user_id,
+  ]);
+  return res.status(200).json({ jobs: result.rows });
+});
+
+app.get("/get_to_edit_job/:job_id", authenticateJWT, async (req, res) => {
+  const job_id = req.params.job_id;
+  const result = await pool.query("select * from jobs where job_id=$1", [
+    job_id,
+  ]);
+  return res.status(200).json({ jobs: result.rows });
+});
+
+app.put("/update_job/:job_id", authenticateJWT, async (req, res) => {
+  const job_id = req.params.job_id;
+  const {
+    job_title,
+    client_bill,
+    pay_rate,
+    client,
+    end_client,
+    location,
+    status,
+    job_description,
+    job_code,
+    priority,
+  } = req.body;
+  const result = await pool.query(
+    "update jobs set job_title=$1, client_bill=$2, pay_rate=$3, client=$4, end_client=$5, location=$6, status=$7, job_description=$8, job_code=$9, priority=$10 where job_id=$11",
+    [
+      job_title,
+      client_bill,
+      pay_rate,
+      client,
+      end_client,
+      location,
+      status,
+      job_description,
+      job_code,
+      priority,
+      job_id,
+    ]
+  );
+  return res.status(200).json({ message: "Job updated successfully" });
+});
+
+app.delete("/delete_job/:job_id", authenticateJWT, async (req, res) => {
+  const job_id = req.params.job_id;
+  const result = await pool.query("DELETE FROM jobs WHERE job_id=$1", [job_id]);
+  return res.status(200).json({ message: "Job deleted successfully" });
+});
+
 app.listen(3000, () => {
   console.log("Server is running on port 3000");
 });

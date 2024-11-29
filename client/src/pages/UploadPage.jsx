@@ -81,20 +81,20 @@ const UploadPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-950 via-stone-900 to-emerald-950 relative overflow-hidden">
-      <div className="absolute w-72 h-72 bg-emerald-800/10 rounded-full blur-3xl animate-pulse -top-20 -left-20"></div>
-      <div className="absolute w-72 h-72 bg-stone-800/10 rounded-full blur-3xl animate-pulse -bottom-20 -right-20"></div>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-sky-50 to-white relative overflow-hidden">
+      <div className="absolute w-72 h-72 bg-blue-100/50 rounded-full blur-3xl animate-pulse -top-20 -left-20"></div>
+      <div className="absolute w-72 h-72 bg-sky-100/50 rounded-full blur-3xl animate-pulse -bottom-20 -right-20"></div>
 
-      <div className="max-w-xl w-full p-8 bg-stone-900/40 backdrop-blur-xl rounded-[1.5rem] shadow-[0_8px_32px_rgba(0,0,0,0.3)] border border-emerald-900/30 relative group hover:shadow-[0_16px_48px_rgba(0,0,0,0.4)] transition-all duration-500">
+      <div className="max-w-xl w-full p-8 bg-white/90 backdrop-blur-xl rounded-[1.5rem] shadow-lg border border-stone-200 relative group hover:shadow-xl transition-all duration-500">
         <div className="text-center mb-8 relative">
-          <h2 className="text-4xl font-serif tracking-tight text-stone-200">
+          <h2 className="text-4xl font-serif tracking-tight text-blue-600">
             Upload Document
           </h2>
-          <p className="text-emerald-100/70 mt-2 font-light tracking-widest uppercase text-xs">
+          <p className="text-stone-500 mt-2 font-light tracking-widest uppercase text-xs">
             Share your files securely
           </p>
           {isUploading && (
-            <div className="absolute -top-4 -right-4 w-10 h-10 bg-gradient-to-br from-emerald-700 to-stone-700 rounded-full opacity-100 animate-spin"></div>
+            <div className="absolute -top-4 -right-4 w-10 h-10 bg-gradient-to-br from-blue-500 to-sky-500 rounded-full opacity-100 animate-spin"></div>
           )}
         </div>
 
@@ -102,8 +102,8 @@ const UploadPage = () => {
           <div
             className={`mb-4 p-3 rounded-lg text-sm ${
               uploadStatus.error
-                ? "bg-red-900/20 text-red-200"
-                : "bg-emerald-900/20 text-emerald-200"
+                ? "bg-red-100 text-red-600"
+                : "bg-blue-100 text-blue-600"
             }`}
           >
             {uploadStatus.message}
@@ -113,8 +113,8 @@ const UploadPage = () => {
         <div className="space-y-6">
           <div
             className={`border-2 border-dashed ${
-              dragActive ? "border-emerald-500" : "border-emerald-800/30"
-            } rounded-xl p-6 text-center hover:border-emerald-700/50 transition-colors duration-300 cursor-pointer group/upload`}
+              dragActive ? "border-blue-500" : "border-stone-300"
+            } rounded-xl p-6 text-center hover:border-blue-400 transition-colors duration-300 cursor-pointer group/upload`}
             onDragEnter={handleDrag}
             onDragLeave={handleDrag}
             onDragOver={handleDrag}
@@ -134,7 +134,7 @@ const UploadPage = () => {
             />
             <label htmlFor="file-upload" className="cursor-pointer block">
               <svg
-                className="w-12 h-12 mx-auto text-emerald-700/50 group-hover/upload:text-emerald-600/70 transition-colors duration-300"
+                className="w-12 h-12 mx-auto text-blue-400 group-hover/upload:text-blue-500 transition-colors duration-300"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -146,17 +146,17 @@ const UploadPage = () => {
                   d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
                 />
               </svg>
-              <p className="mt-3 text-stone-300 font-serif text-sm">
+              <p className="mt-3 text-stone-600 font-serif text-sm">
                 {file ? (
                   file.name
                 ) : (
                   <>
                     Drag and drop your file here, or{" "}
-                    <span className="text-emerald-400">browse</span>
+                    <span className="text-blue-500">browse</span>
                   </>
                 )}
               </p>
-              <p className="mt-1 text-stone-400 text-xs">
+              <p className="mt-1 text-stone-500 text-xs">
                 Supported formats: DOC, DOCX, PDF
               </p>
             </label>
@@ -166,7 +166,7 @@ const UploadPage = () => {
             <div className="group/input">
               <label
                 htmlFor="filename"
-                className="block text-xs font-serif text-stone-300 mb-1 tracking-wide"
+                className="block text-xs font-serif text-stone-600 mb-1 tracking-wide"
               >
                 File Name
               </label>
@@ -174,7 +174,7 @@ const UploadPage = () => {
                 type="text"
                 id="filename"
                 value={filename}
-                className="block w-full px-4 py-3 bg-stone-800/30 border border-emerald-900/30 rounded-lg text-stone-200 placeholder:text-stone-500 focus:outline-none focus:ring-2 focus:ring-emerald-700/50 focus:border-transparent transition-all duration-300 hover:bg-stone-800/40"
+                className="block w-full px-4 py-3 bg-white border border-stone-200 rounded-lg text-stone-800 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all duration-300 hover:bg-stone-50"
                 placeholder="Enter file name"
                 onChange={(e) => setFileName(e.target.value)}
               />
@@ -182,7 +182,7 @@ const UploadPage = () => {
             <div className="group/input">
               <label
                 htmlFor="shortDescription"
-                className="block text-xs font-serif text-stone-300 mb-1 tracking-wide"
+                className="block text-xs font-serif text-stone-600 mb-1 tracking-wide"
               >
                 Short Description
               </label>
@@ -190,7 +190,7 @@ const UploadPage = () => {
                 type="text"
                 id="shortdescription"
                 value={shortdescription}
-                className="block w-full px-4 py-3 bg-stone-800/30 border border-emerald-900/30 rounded-lg text-stone-200 placeholder:text-stone-500 focus:outline-none focus:ring-2 focus:ring-emerald-700/50 focus:border-transparent transition-all duration-300 hover:bg-stone-800/40"
+                className="block w-full px-4 py-3 bg-white border border-stone-200 rounded-lg text-stone-800 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all duration-300 hover:bg-stone-50"
                 placeholder="Enter short description"
                 onChange={(e) => setShortDescription(e.target.value)}
               />
@@ -198,7 +198,7 @@ const UploadPage = () => {
             <div className="group/input">
               <label
                 htmlFor="fileType"
-                className="block text-xs font-serif text-stone-300 mb-1 tracking-wide"
+                className="block text-xs font-serif text-stone-600 mb-1 tracking-wide"
               >
                 File Type
               </label>
@@ -206,7 +206,7 @@ const UploadPage = () => {
                 type="text"
                 id="filetype"
                 value={filetype}
-                className="block w-full px-4 py-3 bg-stone-800/30 border border-emerald-900/30 rounded-lg text-stone-200 placeholder:text-stone-500 focus:outline-none focus:ring-2 focus:ring-emerald-700/50 focus:border-transparent transition-all duration-300 hover:bg-stone-800/40"
+                className="block w-full px-4 py-3 bg-white border border-stone-200 rounded-lg text-stone-800 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all duration-300 hover:bg-stone-50"
                 placeholder="Enter file type"
                 onChange={(e) => setFileType(e.target.value)}
               />
@@ -216,7 +216,7 @@ const UploadPage = () => {
               type="submit"
               onClick={handleSubmits}
               disabled={isUploading}
-              className={`w-full py-3 px-4 bg-gradient-to-r from-emerald-800 to-stone-800 rounded-lg text-stone-200 font-serif tracking-wide hover:from-emerald-700 hover:to-stone-700 transform hover:-translate-y-1 transition-all duration-300 shadow-lg hover:shadow-emerald-900/25 focus:outline-none focus:ring-2 focus:ring-emerald-700/50 active:scale-[0.98] ${
+              className={`w-full py-3 px-4 bg-blue-600 rounded-lg text-white font-serif tracking-wide hover:bg-blue-700 transform hover:-translate-y-1 transition-all duration-300 shadow-lg hover:shadow-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50 active:scale-[0.98] ${
                 isUploading ? "opacity-50 cursor-not-allowed" : ""
               }`}
             >
