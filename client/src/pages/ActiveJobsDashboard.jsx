@@ -6,6 +6,7 @@ const ActiveJobsDashboard = () => {
   const navigate = useNavigate();
   const [jobs, setJobs] = useState([]);
   const [user, setUser] = useState("A");
+  
   const getJobs = async () => {
     const response = await axiosInstance.get("/get_all_jobs");
     setJobs(response.data.jobs);
