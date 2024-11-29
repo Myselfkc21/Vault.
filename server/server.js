@@ -53,7 +53,7 @@ app.post("/login", async (req, res) => {
     const checkUser = await pool.query("SELECT * FROM users WHERE email=$1", [
       email,
     ]);
-    console.log("checkUser", checkUser);
+    // console.log("checkUser", checkUser);
 
     if (checkUser.rows.length === 0) {
       return res.status(400).json({ message: "Sign up first" });
@@ -91,9 +91,9 @@ app.post(
   authenticateJWT,
   upload.single("file"),
   async (req, res) => {
-    console.log(req.file);
+    // console.log(req.file);
     const { filename, shortdescription, filetype } = req.body;
-    console.log(filename, shortdescription, filetype);
+    // console.log(filename, shortdescription, filetype);
     try {
       const file_type = filetype;
       const file_size = req.file.size;
@@ -119,7 +119,7 @@ app.post(
       );
       return res.status(200).json({ message: "File uploaded successfully" });
     } catch (error) {
-      return res.status(500).json({ message: "Server error" });
+      return res.status(500).json({ message: error });
     }
   }
 );
@@ -444,6 +444,15 @@ app.delete("/delete_job/:job_id", authenticateJWT, async (req, res) => {
   return res.status(200).json({ message: "Job deleted successfully" });
 });
 
+pool
+  .connect()
+  .then((client) => {
+    console.log("Connected to the Tembo PostgreSQL database");
+    client.release(); // Release the client back to the pool
+  })
+  .catch((err) => {
+    console.error("Error connecting to Tembo PostgreSQL:", err);
+  });
 app.listen(3000, () => {
   console.log("Server is running on port 3000");
 });
