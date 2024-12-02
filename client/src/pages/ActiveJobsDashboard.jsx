@@ -6,7 +6,8 @@ const ActiveJobsDashboard = () => {
   const navigate = useNavigate();
   const [jobs, setJobs] = useState([]);
   const [user, setUser] = useState("A");
-  
+  const [detailView, setDetailView] = useState();
+
   const getJobs = async () => {
     const response = await axiosInstance.get("/get_all_jobs");
     setJobs(response.data.jobs);
@@ -14,6 +15,12 @@ const ActiveJobsDashboard = () => {
   const getUser = async () => {
     const response = await axiosInstance.get("/get_user");
     setUser(response.data.user.fullname);
+  };
+
+  const handleSelect = async (job_id) => {
+    if (detailView != false) {
+      navigate(`/jobs/edit/${job_id}`);
+    }
   };
   const handleDelete = async (job_id) => {
     const response = await axiosInstance.delete(`/delete_job/${job_id}`);
@@ -27,8 +34,8 @@ const ActiveJobsDashboard = () => {
   return (
     <div>
       <NavBar user={user} />
-      <div className="min-h-screen bg-gradient-to-br from-sky-50 to-white p-8 pt-24">
-        <div className="max-w-7xl mx-auto">
+      <div className="min-h-screen bg-gradient-to-br from-sky-50 to-white p-1 pt-24">
+        <div className="max-w-screen ml-4 mr-4 mx-auto">
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-4xl font-serif text-blue-600 tracking-wide">
               Active Jobs
@@ -41,8 +48,7 @@ const ActiveJobsDashboard = () => {
             </button>
           </div>
 
-          <div className="grid gap-6">
-            {/* Sample job card - you'll want to map through actual job data */}
+          {/* <div className="grid gap-6">
             {jobs.map((job, id) => (
               <div
                 key={id}
@@ -159,6 +165,103 @@ const ActiveJobsDashboard = () => {
                       </button>
                     </div>
                   </div>
+                </div>
+              </div>
+            ))}
+          </div> */}
+          <div className="grid grid-cols-12 md:grid-cols-12 gap-4 bg-white shadow-md rounded-lg p-4 items-center justify-center m-0">
+            <div className="flex flex-col items-center">
+              <p className="font-semibold text-gray-700">Select</p>
+            </div>
+            <div className="flex flex-col items-center">
+              <p className="font-semibold text-gray-700">Job Code</p>
+            </div>
+            <div className="flex flex-col items-center">
+              <p className="font-semibold text-gray-700">Job Title</p>
+            </div>
+            <div className="flex flex-col items-center">
+              <p className="font-semibold text-gray-700 text-nowrap">
+                Client Bill Rate
+              </p>
+            </div>
+            <div className="flex flex-col items-center">
+              <p className="font-semibold text-gray-700">Pay Rate</p>
+            </div>
+            <div className="flex flex-col items-center">
+              <p className="font-semibold text-gray-700">Location</p>
+            </div>
+            <div className="flex flex-col items-center">
+              <p className="font-semibold text-gray-700">Job Status</p>
+            </div>
+            <div className="flex flex-col items-center">
+              <p className="font-semibold text-gray-700">Client</p>
+            </div>
+            <div className="flex flex-col items-center">
+              <p className="font-semibold text-gray-700">End Client</p>
+            </div>
+            <div className="flex flex-col items-center">
+              <p className="font-semibold text-gray-700 text-nowrap">
+                Client Job ID
+              </p>
+            </div>
+            <div className="flex flex-col items-center">
+              <p className="font-semibold text-gray-700 text-nowrap">
+                Client Manager
+              </p>
+            </div>
+            <div className="flex flex-col items-center">
+              <p className="font-semibold text-gray-700">Priority</p>
+            </div>
+          </div>
+          <div className="mt-4">
+            {jobs.map((job, index) => (
+              <div
+                key={index}
+                className="grid grid-cols-11 md:grid-cols-12 gap-4 bg-white shadow-md rounded-lg p-4 mt-4"
+              >
+                <div className="flex items-center justify-center">
+                  <input
+                    type="checkbox"
+                    className="w-4 h-4"
+                    onClick={(e) => {
+                      console.log("here", e.target.checked);
+                      setDetailView(e.target.checked);
+                      handleSelect(job.job_id);
+                    }}
+                  />
+                </div>
+                <div className="text-gray-600 flex items-center justify-center">
+                  <p>{job.job_code}</p>
+                </div>
+                <div className="text-gray-600  flex items-center justify-center">
+                  <p>{job.job_title}</p>
+                </div>
+                <div className="text-gray-600  flex items-center justify-center">
+                  <p>{job.client_bill}</p>
+                </div>
+                <div className="text-gray-600  flex items-center justify-center">
+                  <p>{job.pay_rate}</p>
+                </div>
+                <div className="text-gray-600  flex items-center justify-center">
+                  <p>{job.location}</p>
+                </div>
+                <div className="text-gray-600  flex items-center justify-center">
+                  <p>{job.status}</p>
+                </div>
+                <div className="text-gray-600  flex items-center justify-center">
+                  <p>{job.client}</p>
+                </div>
+                <div className="text-gray-600  flex items-center justify-center">
+                  <p>{job.end_client}</p>
+                </div>
+                <div className="text-gray-600  flex items-center justify-center">
+                  <p>{job.job_code}</p>
+                </div>
+                <div className="text-gray-600  flex items-center justify-center">
+                  <p>{job.user_id}</p>
+                </div>
+                <div className="text-gray-600  flex items-center justify-center">
+                  <p>{job.priority}</p>
                 </div>
               </div>
             ))}

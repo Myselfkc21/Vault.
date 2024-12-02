@@ -169,6 +169,21 @@ const JobEdit = () => {
                   <option value="Low">Low</option>
                 </select>
               </div>
+
+              <div>
+                <label className="block text-sm font-medium text-stone-600 mb-2">
+                  Status
+                </label>
+                <select
+                  value={Status}
+                  onChange={(e) => setStatus(e.target.value)}
+                  className="w-full px-4 py-2 rounded-lg border border-stone-200 focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 transition-colors duration-300"
+                >
+                  <option value="High">urgent</option>
+                  <option value="Medium">normal</option>
+                  <option value="Low">Later</option>
+                </select>
+              </div>
             </div>
 
             <div>

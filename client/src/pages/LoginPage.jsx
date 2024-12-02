@@ -11,16 +11,20 @@ const LoginPage = () => {
     setError("");
     e.preventDefault();
     console.log(email, password);
-    const response = await axiosInstance.post("/login", {
-      email,
-      password,
-    });
-    console.log(response);
-    if (response.status === 200) {
-      localStorage.setItem("token", response.data.token);
-      navigate("/dashboard");
-    } else {
-      setError("Invalid credentials");
+    try {
+      const response = await axiosInstance.post("/login", {
+        email,
+        password,
+      });
+      console.log(response);
+      if (response.status === 200) {
+        localStorage.setItem("token", response.data.token);
+        navigate("/dashboard");
+      } else {
+        setError("Invalid credentials");
+      }
+    } catch (error) {
+      setError(error.response.data.message);
     }
   };
   return (
@@ -85,12 +89,6 @@ const LoginPage = () => {
               Forgot password?
             </a>
             {error && <p className="text-red-500">{error}</p>}
-            <a
-              href="/admin-login"
-              className="text-emerald-200/70 hover:text-emerald-100 transition-colors duration-300 font-serif"
-            >
-              Admin?
-            </a>
           </div>
 
           <button
@@ -113,6 +111,15 @@ const LoginPage = () => {
               className="text-emerald-200/70 hover:text-emerald-100 transition-colors duration-300 border-b border-emerald-800/50"
             >
               Create one
+            </a>
+          </p>
+          <p className="text-stone-400 font-serif">
+            Are you an admin?
+            <a
+              href="/admin-login"
+              className="text-emerald-200/70 hover:text-emerald-100 transition-colors duration-300 font-serif"
+            >
+              Admin Login
             </a>
           </p>
         </div>

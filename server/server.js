@@ -346,7 +346,6 @@ app.post("/search", authenticateJWT, async (req, res) => {
 
 // -----------------Active Jobs Dashboard -----------------
 app.post("/upload_jobs", authenticateJWT, async (req, res) => {
-  console.log("Uploading jobs...");
   try {
     const {
       user_id,
@@ -361,7 +360,7 @@ app.post("/upload_jobs", authenticateJWT, async (req, res) => {
       job_code,
       priority,
     } = req.body;
-
+    console.log(req.body);
     const created_at = new Date();
     const result = await pool.query(
       "INSERT INTO jobs (job_id, user_id, job_title, client_bill, pay_rate, client, end_client, location, status, job_description, job_code, created_at, priority) VALUES (default, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *",
