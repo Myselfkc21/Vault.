@@ -50,6 +50,12 @@ const JobEdit = () => {
       navigate("/jobs");
     }
   };
+
+  const handleDelete = async () => {
+    const response = await axiosInstance.delete(`/delete_job/${job_id}`);
+    console.log(response.data.message);
+    navigate("/jobs");
+  };
   useEffect(() => {
     loadJob();
   }, []);
@@ -201,6 +207,7 @@ const JobEdit = () => {
             <div className="flex justify-end space-x-4">
               <button
                 type="button"
+                onClick={() => navigate(-1)}
                 className="px-6 py-3 bg-stone-100 text-stone-600 rounded-lg hover:bg-stone-200 transition-colors duration-300 shadow-md hover:shadow-lg font-medium"
               >
                 Cancel
@@ -214,6 +221,16 @@ const JobEdit = () => {
                 className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-300 shadow-md hover:shadow-lg font-medium"
               >
                 Update Job
+              </button>
+              <button
+                onClick={() => {
+                  handleDelete();
+                  navigate("/jobs");
+                }}
+                type="submit"
+                className="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-300 shadow-md hover:shadow-lg font-medium"
+              >
+                Delete Job
               </button>
             </div>
           </form>

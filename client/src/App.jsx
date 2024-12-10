@@ -11,6 +11,12 @@ import AdminDashboard from "./pages/AdminDashboard";
 import ActiveJobsDashboard from "./pages/ActiveJobsDashboard";
 import JobUploadPage from "./pages/JobUploadPage";
 import JobEdit from "./pages/JobEdit";
+import Applicants from "./pages/Applicants";
+import ApplicantEdit from "./pages/ApplicantEdit";
+import ApplicantUpload from "./pages/ApplicantUpload";
+import ClientHome from "./pages/ClientsPage/ClientHome";
+import AddClientSub from "./pages/ClientsPage/AddClientSub";
+import ClientEditPage from "./pages/ClientsPage/ClientEditPage";
 function App() {
   const router = createBrowserRouter([
     {
@@ -52,6 +58,31 @@ function App() {
     {
       path: "/jobs/upload",
       element: <JobUploadPage />,
+    },
+
+    {
+      path: "/Applicants",
+      element: <Applicants />,
+    },
+    {
+      path: "/Applicants/:id",
+      element: <ApplicantEdit />,
+    },
+    {
+      path: "/Applicant-Upload",
+      element: <ApplicantUpload />,
+    },
+    {
+      path: "/Clients-Submission",
+      element: <ClientHome />,
+    },
+    {
+      path: "/add-applicant",
+      element: <AddClientSub />,
+    },
+    {
+      path: "/Clients-Submission/edit/:id",
+      element: <ClientEditPage></ClientEditPage>,
     },
   ]);
   return <RouterProvider router={router} />;

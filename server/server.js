@@ -1,4 +1,4 @@
-import express from "express";
+import express, { response } from "express";
 import cors from "cors";
 import pool from "./db/index.js";
 import dotenv from "dotenv";
@@ -30,6 +30,8 @@ const storage = multer.diskStorage({
   },
 });
 const upload = multer({ storage });
+
+//Signup API
 app.post("/signup", async (req, res) => {
   const { fullname, email, password } = req.body;
   console.log(fullname, email, password);
@@ -46,14 +48,16 @@ app.post("/signup", async (req, res) => {
     return res.status(200).json({ message: "User created successfully" });
   }
 });
+
+//Login API
 app.post("/login", async (req, res) => {
   const { email, password } = req.body;
-
+  console.log("dammn");
   try {
     const checkUser = await pool.query("SELECT * FROM users WHERE email=$1", [
       email,
     ]);
-    // console.log("checkUser", checkUser);
+    console.log("checkUser", checkUser);
 
     if (checkUser.rows.length === 0) {
       return res.status(400).json({ message: "Sign up first" });
@@ -81,11 +85,7 @@ app.post("/login", async (req, res) => {
   }
 });
 
-app.get("/dashboard", authenticateJWT, (req, res) => {
-  const { file_name, upload_data, file } = req.body;
-  // console.log(file_name, upload_data, file);
-});
-
+//Upload API
 app.post(
   "/upload",
   authenticateJWT,
@@ -124,6 +124,7 @@ app.post(
   }
 );
 
+//Get all files
 app.get("/get_all_files", authenticateJWT, async (req, res) => {
   const user_id = req.user.id;
   const result = await pool.query("SELECT * FROM files WHERE user_id=$1", [
@@ -131,6 +132,7 @@ app.get("/get_all_files", authenticateJWT, async (req, res) => {
   ]);
   return res.status(200).json({ files: result.rows });
 });
+
 app.get("/files", authenticateJWT, async (req, res) => {
   const user_id = req.user.id;
   const result = await pool.query(
@@ -139,6 +141,8 @@ app.get("/files", authenticateJWT, async (req, res) => {
   );
   return res.status(200).json({ files: result.rows });
 });
+
+//Pin file
 app.post("/pin_file", authenticateJWT, async (req, res) => {
   const file_id = req.body.file_id;
   const pinned = req.body.pinned;
@@ -160,6 +164,8 @@ app.post("/pin_file", authenticateJWT, async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 });
+
+//Download file
 app.get("/files/:file_id", authenticateJWT, async (req, res) => {
   const file_id = req.params.file_id;
   console.log(file_id);
@@ -189,6 +195,7 @@ app.get("/files/:file_id", authenticateJWT, async (req, res) => {
   });
 });
 
+//Delete file
 app.delete("/files/:file_id", authenticateJWT, async (req, res) => {
   const file_id = req.params.file_id;
   const result = await pool.query(
@@ -205,6 +212,7 @@ app.delete("/files/:file_id", authenticateJWT, async (req, res) => {
   return res.status(200).json({ message: "File deleted successfully" });
 });
 
+//Get user
 app.get("/get_user", authenticateJWT, async (req, res) => {
   try {
     const user_id = req.user.id;
@@ -217,6 +225,7 @@ app.get("/get_user", authenticateJWT, async (req, res) => {
   }
 });
 
+//Admin login
 app.post("/admin_login", async (req, res) => {
   const { email, code } = req.body;
   try {
@@ -238,6 +247,7 @@ app.post("/admin_login", async (req, res) => {
   }
 });
 
+//Admin dashboard
 app.get("/admin_dashboard", authenticateJWT, async (req, res) => {
   try {
     const users = await pool.query("SELECT * FROM users");
@@ -272,12 +282,13 @@ app.get("/admin_dashboard", authenticateJWT, async (req, res) => {
   }
 });
 
+//Logout
 app.post("/logout", authenticateJWT, async (req, res) => {
   res.clearCookie("token");
   return res.status(200).json({ message: "Logout successful" });
 });
 
-//admin delete still unable to delete the files yet locally
+//delete user
 app.delete("/delete_user", authenticateJWT, async (req, res) => {
   try {
     const user_id = req.body.user_id;
@@ -330,6 +341,7 @@ app.delete("/delete_user", authenticateJWT, async (req, res) => {
   }
 });
 
+//Search
 app.post("/search", authenticateJWT, async (req, res) => {
   try {
     const searchTerm = req.body.searchTerm;
@@ -345,6 +357,7 @@ app.post("/search", authenticateJWT, async (req, res) => {
 });
 
 // -----------------Active Jobs Dashboard -----------------
+//Add job
 app.post("/upload_jobs", authenticateJWT, async (req, res) => {
   try {
     const {
@@ -388,6 +401,7 @@ app.post("/upload_jobs", authenticateJWT, async (req, res) => {
   }
 });
 
+//Get all jobs
 app.get("/get_all_jobs", authenticateJWT, async (req, res) => {
   const user_id = req.user.id;
   const result = await pool.query("SELECT * FROM jobs WHERE user_id=$1", [
@@ -396,6 +410,7 @@ app.get("/get_all_jobs", authenticateJWT, async (req, res) => {
   return res.status(200).json({ jobs: result.rows });
 });
 
+//Get the selected job
 app.get("/get_to_edit_job/:job_id", authenticateJWT, async (req, res) => {
   const job_id = req.params.job_id;
   const result = await pool.query("select * from jobs where job_id=$1", [
@@ -404,6 +419,7 @@ app.get("/get_to_edit_job/:job_id", authenticateJWT, async (req, res) => {
   return res.status(200).json({ jobs: result.rows });
 });
 
+//Update job
 app.put("/update_job/:job_id", authenticateJWT, async (req, res) => {
   const job_id = req.params.job_id;
   const {
@@ -437,20 +453,391 @@ app.put("/update_job/:job_id", authenticateJWT, async (req, res) => {
   return res.status(200).json({ message: "Job updated successfully" });
 });
 
+//Delete job
 app.delete("/delete_job/:job_id", authenticateJWT, async (req, res) => {
   const job_id = req.params.job_id;
   const result = await pool.query("DELETE FROM jobs WHERE job_id=$1", [job_id]);
   return res.status(200).json({ message: "Job deleted successfully" });
 });
 
+// -----------------Applicants Page ----------------- //
+
+//get all the applicant data of the user.
+app.get("/get_aplicant_submissions/", authenticateJWT, async (req, res) => {
+  const user_id = req.user.id;
+  const result = await pool.query(
+    "select * from applicantsubmissions where user_id=$1",
+    [user_id]
+  );
+  console.log("applicant data", result.rows);
+  return res.status(200).json({ applicantsubmissions: result.rows });
+});
+
+app.get(
+  "/get_selected_applicant_data/:job_id",
+  authenticateJWT,
+  async (req, res) => {
+    try {
+      const job_id = req.params.job_id;
+      const user_id = req.user.id;
+      console.log("job_id:", job_id, "user_id:", user_id);
+
+      const result = await pool.query(
+        "SELECT * FROM applicantsubmissions WHERE applicant_id = $1 AND user_id = $2",
+        [job_id, user_id]
+      );
+
+      console.log(result.rows);
+      return res.status(200).json({ applicantsubmissions: result.rows });
+    } catch (error) {
+      console.error("Error fetching applicant data:", error.message);
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+  }
+);
+//Update the applicant data
+app.put(
+  "/update_applicant_submissions/:applicant_id",
+  authenticateJWT,
+  async (req, res) => {
+    const user_id = req.user.id;
+    const applicant_id = req.params.applicant_id;
+    const {
+      JobApplied,
+      Joblocation,
+      jobCode,
+      clientJobId,
+      clientName,
+      clientManager,
+      RecruitmentManager,
+      SalesManager,
+      PrimaryRecruiter,
+      ApplicantLoaction,
+      AppliantName,
+    } = req.body;
+
+    try {
+      const result = await pool.query(
+        `UPDATE applicantsubmissions
+         SET 
+           jobapplied = $1,
+           joblocation = $2,
+           jobcode = $3,
+           clientjobid = $4,
+           clientname = $5,
+           clientmanager = $6,
+           recruitmentmanager = $7,
+           salesmanager = $8,
+           primaryrecruiter = $9,
+           applicantlocation = $10,
+           applicantname=$11
+         WHERE user_id = $12 AND applicant_id = $13`,
+        [
+          JobApplied,
+          Joblocation,
+          jobCode,
+          clientJobId,
+          clientName,
+          clientManager,
+          RecruitmentManager,
+          SalesManager,
+          PrimaryRecruiter,
+          ApplicantLoaction,
+          AppliantName,
+          user_id,
+          applicant_id,
+        ]
+      );
+      return res
+        .status(200)
+        .json({ message: "Applicant updated successfully" });
+    } catch (error) {
+      console.error(error);
+      return res
+        .status(500)
+        .json({ message: "Error updating applicant submission" });
+    }
+  }
+);
+
+//Delete the applicant
+app.delete(
+  "/delete_applicant_submissions/:applicant_id",
+  authenticateJWT,
+  async (req, res) => {
+    try {
+      const user_id = req.user.id;
+      const applicant_id = req.params.applicant_id;
+      const result = await pool.query(
+        "DELETE FROM applicantsubmissions WHERE user_id=$1 AND applicant_id=$2",
+        [user_id, applicant_id]
+      );
+      return res
+        .status(200)
+        .json({ message: "Applicant deleted successfully" });
+    } catch (error) {
+      console.error(error);
+      return res
+        .status(500)
+        .json({ message: "Error deleting applicant submission" });
+    }
+  }
+);
+
+app.post("/add_applicant_submissions", authenticateJWT, async (req, res) => {
+  try {
+    const user_id = req.user.id;
+    const {
+      JobApplied,
+      Joblocation,
+      jobCode,
+      clientJobId,
+      clientName,
+      clientManager,
+      RecruitmentManager,
+      SalesManager,
+      PrimaryRecruiter,
+      ApplicantLocation,
+      AppliantName,
+      applicant_id,
+    } = req.body;
+
+    const result = await pool.query(
+      `Insert into applicantsubmissions
+    (jobapplied,joblocation,jobcode,clientjobid,clientname,clientmanager,recruitmentmanager,salesmanager,primaryrecruiter,applicantlocation,applicantname,user_id,applicantid)
+      values($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12,$13)`,
+      [
+        JobApplied,
+        Joblocation,
+        jobCode,
+        clientJobId,
+        clientName,
+        clientManager,
+        RecruitmentManager,
+        SalesManager,
+        PrimaryRecruiter,
+        ApplicantLocation,
+        AppliantName,
+        user_id,
+        applicant_id,
+      ]
+    );
+    return res.status(200).json({ message: "Applicant added successfully" });
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json({ message: "Error adding applicant submission" });
+  }
+});
+
+// ---------------client Page------------------//
+
+//get all clients submissions
+app.get("/get_client_submissions", authenticateJWT, async (req, res) => {
+  try {
+    const user = req.user.id;
+    const result = await pool.query("Select * from clients where user_id=$1", [
+      user,
+    ]);
+    return res.status(200).json({ clients: result.rows });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+});
+
+// add new client submissions
+app.post("/add_client_submissions", authenticateJWT, async (req, res) => {
+  try {
+    const user = req.user.id;
+    console.log("here", req.body);
+    const {
+      jobCode,
+      JobApplied,
+      JobLocation,
+      clientId,
+      clientName,
+      clientManager,
+      recruitmentManager,
+      salesManager,
+      primaryRecruiter,
+      applicantID,
+      applicantName,
+      applicantLastname,
+      applicantEmail,
+      applicantMobile,
+      status,
+    } = req.body;
+
+    console.log(req.body);
+
+    const result = await pool.query(
+      `
+      INSERT INTO clients
+      (
+        user_id, 
+        job_code, 
+        job_applied, 
+        job_location, 
+        client_id, 
+        client_name, 
+        client_manager, 
+        recruitment_manager, 
+        sales_manager, 
+        primary_recruiter, 
+        applicant_id, 
+        applicant_name, 
+        applicant_lastname, 
+        email_address, 
+        mobile,
+        status
+      ) 
+      VALUES (
+        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15,$16
+      )`,
+      [
+        user,
+        jobCode,
+        JobApplied,
+        JobLocation,
+        clientId,
+        clientName,
+        clientManager,
+        recruitmentManager,
+        salesManager,
+        primaryRecruiter,
+        applicantID,
+        applicantName,
+        applicantLastname,
+        applicantEmail,
+        applicantMobile,
+        status,
+      ]
+    );
+    console.log("RESULT", result);
+    res.status(201).json({ message: "Client submission added successfully." });
+  } catch (err) {
+    console.error("Error inserting client submission:", err);
+    res
+      .status(500)
+      .json({ message: "Error adding client submission", error: err.message });
+  }
+});
+
+//get the selected client submissions
+app.get("/get_selected_client_data/:id", authenticateJWT, async (req, res) => {
+  try {
+    const clientsubmission_id = req.params.id;
+    const user = req.user.id;
+    const result = await pool.query(
+      "Select * from clients where clientsubmission_id=$1 and user_id=$2",
+      [clientsubmission_id, user]
+    );
+    return res.status(200).json({ clients: result.rows });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+});
+
+//update client submissions
+app.put("/update_client_submissions/:id", authenticateJWT, async (req, res) => {
+  try {
+    const clientsubmission_id = req.params.id;
+    const user = req.user.id;
+    const {
+      jobCode,
+      JobApplied,
+      JobLocation,
+      clientId,
+      clientName,
+      clientManager,
+      recruitmentManager,
+      salesManager,
+      primaryRecruiter,
+      applicantID,
+      applicantName,
+      applicantLastname,
+      applicantEmail,
+      applicantMobile,
+    } = req.body;
+    console.log(req.body);
+    const result = await pool.query(
+      "update clients set job_code=$1, job_applied=$2, job_location=$3, client_id=$4, client_name=$5, client_manager=$6, recruitment_manager=$7, sales_manager=$8, primary_recruiter=$9, applicant_id=$10, applicant_name=$11, applicant_lastname=$12, email_address=$13, mobile=$14 where  clientsubmission_id=$15",
+      [
+        jobCode,
+        JobApplied,
+        JobLocation,
+        clientId,
+        clientName,
+        clientManager,
+        recruitmentManager,
+        salesManager,
+        primaryRecruiter,
+        applicantID,
+        applicantName,
+        applicantLastname,
+        applicantEmail,
+        applicantMobile,
+        clientsubmission_id,
+      ]
+    );
+    res
+      .status(200)
+      .json({ message: "Client submission updated successfully." });
+  } catch (error) {
+    console.error("Error updating client submission:", error);
+    res.status(500).json({
+      message: "Error updating client submission",
+      error: error.message,
+    });
+  }
+});
+
+//delete client submissions
+app.delete(
+  "/delete_client_submissions/:id",
+  authenticateJWT,
+  async (req, res) => {
+    try {
+      const clientsubmission_id = req.params.id;
+      const user = req.user.id;
+      const result = await pool.query(
+        "delete from clients where clientsubmission_id=$1 and user_id=$2",
+        [clientsubmission_id, user]
+      );
+      res
+        .status(200)
+        .json({ message: "Client submission deleted successfully." });
+    } catch (error) {
+      console.error("Error deleting client submission:", error);
+      res.status(500).json({
+        message: "Error deleting client submission",
+        error: error.message,
+      });
+    }
+  }
+);
+
+//------------Served Jobs--------------//
+
+app.get("/get_served_jobs", authenticateJWT, async (req, res) => {
+  try {
+    const user = req.user.id;
+    const result = await pool.query(
+      "Select * from served_jobs where user_id=$1",
+      [user]
+    );
+    return res.status(200).json({ jobs: result.rows });
+  } catch (error) {}
+});
 pool
   .connect()
   .then((client) => {
-    console.log("Connected to the Tembo PostgreSQL database");
+    console.log("Connected to the aws database");
     client.release(); // Release the client back to the pool
   })
   .catch((err) => {
-    console.error("Error connecting to Tembo PostgreSQL:", err);
+    console.error("Error connecting to aws database", err);
   });
 app.listen(3000, () => {
   console.log("Server is running on port 3000");

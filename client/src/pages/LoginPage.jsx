@@ -2,11 +2,12 @@ import React, { useState } from "react";
 import axiosInstance from "../utils/axiosInstancs";
 import { useNavigate } from "react-router-dom";
 const LoginPage = () => {
+  const navigate = useNavigate();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [code, setCode] = useState("");
-  const navigate = useNavigate();
   const handleSubmit = async (e) => {
     setError("");
     e.preventDefault();
@@ -24,6 +25,7 @@ const LoginPage = () => {
         setError("Invalid credentials");
       }
     } catch (error) {
+      console.log("lmao", error);
       setError(error.response.data.message);
     }
   };

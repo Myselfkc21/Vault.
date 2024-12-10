@@ -11,10 +11,19 @@ const pool = new Pool({
   database: process.env.PGNAME,
   password: process.env.PGPASSWORD,
   port: process.env.PGPORT,
-  ssl: {
-    rejectUnauthorized: true,
-    ca: fs.readFileSync("./certs/Tembo-Instance-Certificate.crt").toString(),
-  },
+  // ssl: {
+  //   rejectUnauthorized: true,
+  //   ca: fs.readFileSync("./certs/Tembo-Instance-Certificate.crt").toString(),
+  // },
 });
+
+// pool.query("SELECT NOW()", (err, res) => {
+//   if (err) {
+//     console.error("Error connecting to database:", err.stack);
+//   } else {
+//     console.log("Connection successful:", res.rows, process.env.PGDATABASE);
+//   }
+//   pool.end();
+// });
 
 export default pool;
