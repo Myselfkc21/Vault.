@@ -25,7 +25,6 @@ const LoginPage = () => {
         setError("Invalid credentials");
       }
     } catch (error) {
-      console.log("lmao", error);
       setError(error.response.data.message);
     }
   };
