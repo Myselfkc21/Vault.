@@ -839,6 +839,6 @@ pool
   .catch((err) => {
     console.error("Error connecting to aws database", err);
   });
-app.listen(3000, () => {
+app.listen(3000, "0.0.0.0", () => {
   console.log("Server is running on port 3000");
 });
