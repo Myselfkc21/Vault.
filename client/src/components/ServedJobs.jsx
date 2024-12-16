@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import axiosInstance from "../utils/axiosInstancs";
 import { ChevronUp, ChevronDown, Search, Filter } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const ServedJobs = () => {
+  const navigate = useNavigate();
   const [jobs, setJobs] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortConfig, setSortConfig] = useState({
@@ -26,6 +28,10 @@ const ServedJobs = () => {
       setIsLoading(false);
     }
   };
+
+  function handleSelect(job_id) {
+    navigate(`/served-jobs/edit/${job_id}`);
+  }
 
   // Fetch data on component mount
   useEffect(() => {
@@ -73,8 +79,6 @@ const ServedJobs = () => {
   };
 
   const headers = [
-    { key: "user_id", label: "User ID" },
-    { key: "client_served_id", label: "Client Served ID" },
     { key: "job_title", label: "Job Title" },
     { key: "client_bill", label: "Client Bill" },
     { key: "location", label: "Location" },
@@ -138,6 +142,12 @@ const ServedJobs = () => {
           <Filter className="mr-2" size={18} />
           Filters
         </button>
+        <button
+          onClick={() => navigate("servedjobs/addjob")}
+          className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-200 ml-4"
+        >
+          Add job
+        </button>
       </div>
 
       {/* Table Container */}
@@ -146,6 +156,10 @@ const ServedJobs = () => {
           {/* Table Header */}
           <thead className="bg-gray-100 sticky top-0 z-10">
             <tr>
+              <th className="px-4 py-6 text-xs text-nowrap font-medium text-gray-500 uppercase tracking-wider">
+                Select
+              </th>
+
               {headers.map(({ key, label }) => (
                 <th
                   key={key}
@@ -175,6 +189,15 @@ const ServedJobs = () => {
                 key={item.client_served_id}
                 className="hover:bg-blue-50 transition-colors duration-200 border-b last:border-b-0"
               >
+                <div className="px-7 flex items-center justify-center py-3 text-sm text-gray-700 whitespace-nowrap">
+                  <input
+                    className="mr-12"
+                    type="checkbox"
+                    name=""
+                    id=""
+                    onClick={() => handleSelect(item.client_served_id)}
+                  />
+                </div>
                 {headers.map(({ key }) => (
                   <td
                     key={key}

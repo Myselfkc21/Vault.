@@ -830,6 +830,177 @@ app.get("/get_served_jobs", authenticateJWT, async (req, res) => {
     return res.status(200).json({ jobs: result.rows });
   } catch (error) {}
 });
+
+app.post("/add_served_jobs", authenticateJWT, async (req, res) => {
+  const user = req.user.id;
+
+  if (!user) {
+    return res
+      .status(400)
+      .json({ message: "User ID is missing from the token." });
+  }
+
+  try {
+    console.log("Request body:", req.body); // Debugging
+
+    const {
+      client_bill,
+      duration,
+      no_of_positions,
+      client_job_id,
+      client_manager,
+      priority,
+      sales_manager,
+      recruitment_manager,
+      job_title,
+      location,
+      job_status,
+      client,
+      end_client,
+    } = req.body;
+
+    const result = await pool.query(
+      "insert into served_jobs(client_served_id, client_bill, duration, no_of_positions, client_job_id, user_id, client_manager, priority, sales_manager, recruitment_manager, job_title, location, job_status, client, end_client) values(default, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)",
+      [
+        client_bill,
+        duration,
+        no_of_positions,
+        client_job_id,
+        user,
+        client_manager,
+        priority,
+        sales_manager,
+        recruitment_manager,
+        job_title,
+        location,
+        job_status,
+        client,
+        end_client,
+      ]
+    );
+
+    console.log("Query result:", result);
+    res.status(200).json({ message: "Job added successfully.", user });
+  } catch (error) {
+    console.error("Error adding job:", error.stack);
+    res.status(500).json({ message: "Error adding job", error: error.message });
+  }
+});
+
+app.get("/get_served_jobs/:id", authenticateJWT, async (req, res) => {
+  try {
+    const job_id = req.params.id;
+    const user = req.user.id;
+    const result = await pool.query(
+      "Select * from served_jobs where client_served_id=$1 and user_id=$2",
+      [job_id, user]
+    );
+    return res.status(200).json({ jobs: result.rows });
+  } catch (error) {
+    console.error("Error getting job:", error);
+    res
+      .status(500)
+      .json({ message: "Error getting job", error: error.message });
+  }
+});
+
+app.put("/update_served_jobs/:id", authenticateJWT, async (req, res) => {
+  try {
+    const job_id = req.params.id;
+    const user = req.user.id;
+    const {
+      client_served_id,
+      client_bill,
+      duration,
+      no_of_positions,
+      client_job_id,
+      user_id,
+      client_manager,
+      priority,
+      sales_manager,
+      recruitment_manager,
+      job_title,
+      location,
+      job_status,
+      client,
+      end_client,
+    } = req.body;
+    const result = await pool.query(
+      "update served_jobs set client_bill=$1,duration=$2,no_of_positions=$3,client_job_id=$4,client_manager=$5,priority=$6,sales_manager=$7,recruitment_manager=$8,job_title=$9,location=$10,job_status=$11,client=$12,end_client=$13 where client_served_id=$14 and user_id=$15",
+      [
+        client_bill,
+        duration,
+        no_of_positions,
+        client_job_id,
+        client_manager,
+        priority,
+        sales_manager,
+        recruitment_manager,
+        job_title,
+        location,
+        job_status,
+        client,
+        end_client,
+        job_id,
+        user,
+      ]
+    );
+    res.status(200).json({ message: "Job updated successfully." });
+  } catch (error) {
+    console.error("Error updating job:", error);
+    res
+      .status(500)
+      .json({ message: "Error updating job", error: error.message });
+  }
+});
+
+app.delete("/delete_served_jobs/:id", authenticateJWT, async (req, res) => {
+  try {
+    const job_id = req.params.id;
+    const user = req.user.id;
+    const result = await pool.query(
+      "delete from served_jobs where client_served_id=$1 and user_id=$2",
+      [job_id, user]
+    );
+    res.status(200).json({ message: "Job deleted successfully." });
+  } catch (error) {
+    console.error("Error deleting job:", error);
+    res
+      .status(500)
+      .json({ message: "Error deleting job", error: error.message });
+  }
+});
+
+//-------------------login-----------------------======
+app.get("/get_all_logins", authenticateJWT, async (req, res) => {
+  try {
+    const user = req.user.id;
+    const result = await pool.query("Select * from login where id=$1", [user]);
+    return res.status(200).json({ users: result.rows });
+  } catch (error) {
+    console.error("Error getting job:", error);
+    res
+      .status(500)
+      .json({ message: "Error getting job", error: error.message });
+  }
+});
+
+// app.post("/add_login", authenticateJWT, async (req, res) => {
+//   try {
+//   const {
+//     login_id,
+//     username,
+//     employee_id,
+//     email_address,
+//     role,
+//     reporting_to,
+//     team,
+//     direct_number,
+//     company_location,
+//     joining
+
+//   }
+// })
 pool
   .connect()
   .then((client) => {

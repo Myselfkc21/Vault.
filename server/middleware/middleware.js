@@ -16,6 +16,7 @@ const authenticateJWT = (req, res, next) => {
     }
 
     req.user = user; // Attach user info to request
+
     next();
   });
 };

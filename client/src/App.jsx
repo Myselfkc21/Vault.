@@ -17,6 +17,9 @@ import ApplicantUpload from "./pages/ApplicantUpload";
 import ClientHome from "./pages/ClientsPage/ClientHome";
 import AddClientSub from "./pages/ClientsPage/AddClientSub";
 import ClientEditPage from "./pages/ClientsPage/ClientEditPage";
+import AddServedJobs from "./pages/DashBoardPages/AddServedJobs.jsx";
+import { Edit } from "lucide-react";
+import EditServedJobs from "./pages/DashBoardPages/EditServedJobs";
 function App() {
   const router = createBrowserRouter([
     {
@@ -83,6 +86,14 @@ function App() {
     {
       path: "/Clients-Submission/edit/:id",
       element: <ClientEditPage></ClientEditPage>,
+    },
+    {
+      path: "dashboard/servedjobs/addjob",
+      element: <AddServedJobs></AddServedJobs>,
+    },
+    {
+      path: "/served-jobs/edit/:id",
+      element: <EditServedJobs></EditServedJobs>,
     },
   ]);
   return <RouterProvider router={router} />;
