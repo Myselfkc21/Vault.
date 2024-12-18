@@ -2,12 +2,15 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import NavBar from "../components/NavBar";
 import axiosInstance from "../utils/axiosInstancs";
+import AddSubmissions from "../components/AddSubmissions";
 
 const ActiveJobsDashboard = () => {
   const navigate = useNavigate();
   const [jobs, setJobs] = useState([]);
+  const [jobId, SetjobId] = useState();
   const [user, setUser] = useState("A");
   const [detailView, setDetailView] = useState();
+  const [ViewButtons, SetViewButtons] = useState(false);
 
   const getJobs = async () => {
     const response = await axiosInstance.get("/get_all_jobs");
@@ -46,6 +49,7 @@ const ActiveJobsDashboard = () => {
     "Client Job ID",
     "Client Manager",
     "Priority",
+    "Job Status",
   ];
 
   return (
@@ -55,13 +59,40 @@ const ActiveJobsDashboard = () => {
         <div className="mb-8 mt-16">
           <div className="flex justify-between mb-3">
             <h1 className="text-4xl font-bold text-black mb-4">Active Jobs</h1>
-            <div className="flex items-center">
+            <div className="flex items-center gap-4">
               <button
                 onClick={() => navigate("/jobs/upload")}
                 className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
               >
                 Add Job
               </button>
+
+              {ViewButtons && (
+                <div className="flex gap-4">
+                  <button
+                    className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
+                    onClick={() => handleSelect(jobId)}
+                  >
+                    Edit Job
+                  </button>
+                  <button
+                    onClick={() => {
+                      navigate(`/jobs/view-submission/${jobId}`);
+                    }}
+                    className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
+                  >
+                    view Submissions
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      navigate(`/jobs/add-submission/${jobId}`);
+                    }}
+                    className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
+                  >
+                    Add submissions
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
@@ -90,7 +121,8 @@ const ActiveJobsDashboard = () => {
                         type="checkbox"
                         onClick={() => {
                           console.log("here", job.job_id);
-                          handleSelect(job.job_id);
+                          SetViewButtons(!ViewButtons);
+                          SetjobId(job.job_id);
                         }}
                       />
                     </td>
@@ -126,6 +158,9 @@ const ActiveJobsDashboard = () => {
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
                       {job.priority}
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
+                      {job.job_status}
                     </td>
                   </tr>
                 ))}

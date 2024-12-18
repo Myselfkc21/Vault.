@@ -1,7 +1,11 @@
 import { useState } from "react";
 import "./App.css";
 import LoginPage from "./pages/LoginPage";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import {
+  createBrowserRouter,
+  RouterProvider,
+  useParams,
+} from "react-router-dom";
 import DashBoard from "./pages/DashBoard";
 import SignUppage from "./pages/SignUppage";
 import UploadPage from "./pages/UploadPage";
@@ -20,7 +24,23 @@ import ClientEditPage from "./pages/ClientsPage/ClientEditPage";
 import AddServedJobs from "./pages/DashBoardPages/AddServedJobs.jsx";
 import { Edit } from "lucide-react";
 import EditServedJobs from "./pages/DashBoardPages/EditServedJobs";
+import AddSubmissions from "./components/AddSubmissions.jsx";
+import ViewSubmission from "./components/ViewSubmission.jsx";
+
 function App() {
+  function ViewSubmissionWrapper() {
+    const { id } = useParams(); // Extract the `id` from the URL
+    // return <viewSubmission id={id} />;
+    return (
+      <div>
+        <ViewSubmission id={id} />;
+      </div>
+    );
+  }
+  function AddSubmissionsWrapper() {
+    const { id } = useParams(); // Extract the `id` from the URL
+    return <AddSubmissions id={id} />;
+  }
   const router = createBrowserRouter([
     {
       path: "/",
@@ -94,6 +114,14 @@ function App() {
     {
       path: "/served-jobs/edit/:id",
       element: <EditServedJobs></EditServedJobs>,
+    },
+    {
+      path: "/jobs/add-submission/:id",
+      element: <AddSubmissionsWrapper />,
+    },
+    {
+      path: "/jobs/view-submission/:id",
+      element: <ViewSubmissionWrapper />,
     },
   ]);
   return <RouterProvider router={router} />;

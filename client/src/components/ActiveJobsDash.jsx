@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { ChevronUp, ChevronDown, Search, Filter } from "lucide-react";
 
-const ApplicantSubmission = ({ applicant }) => {
+const ActiveJobsDash = ({ applicants }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortConfig, setSortConfig] = useState({
     key: null,
@@ -10,7 +10,7 @@ const ApplicantSubmission = ({ applicant }) => {
 
   // Sorting and filtering logic
   const sortedAndFilteredApplicants = React.useMemo(() => {
-    let result = [...applicant];
+    let result = [...applicants];
 
     // Filtering
     if (searchTerm) {
@@ -35,7 +35,7 @@ const ApplicantSubmission = ({ applicant }) => {
     }
 
     return result;
-  }, [applicant, searchTerm, sortConfig]);
+  }, [applicants, searchTerm, sortConfig]);
 
   // Sorting handler
   const handleSort = (key) => {
@@ -49,13 +49,14 @@ const ApplicantSubmission = ({ applicant }) => {
   };
 
   const headers = [
-    { key: "full_name", label: "Full Name" },
-    { key: "email_address", label: "Email" },
-    { key: "contact_number", label: "contact number" },
+    { key: "job_title", label: "Job Title" },
+    { key: "job_code", label: "Job Code" },
+    { key: "client", label: "client" },
     { key: "client_bill", label: "Client Bill" },
-    { key: "pay_rate", label: "Pay Rate" },
-    { key: "application_status", label: "Applicantion Status" },
-    { key: "work_authorization", label: "work_authorization" },
+    { key: "end_client", label: "End Client" },
+    { key: "pay_rate", label: "Pay rate" },
+    { key: "location", label: "location" },
+    { key: "priority", label: "priority" },
   ];
 
   return (
@@ -140,4 +141,4 @@ const ApplicantSubmission = ({ applicant }) => {
   );
 };
 
-export default ApplicantSubmission;
+export default ActiveJobsDash;

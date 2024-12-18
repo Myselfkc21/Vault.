@@ -14,6 +14,7 @@ const JobUploadPage = () => {
   const [job_code, setJobCode] = useState("");
   const [priority, setPriority] = useState("");
   const [user, setUser] = useState("A");
+  const [JobStatus, SetJobStatus] = useState("");
   const getUser = async () => {
     const response = await axiosInstance.get("/get_user");
     setUser(response.data.user.id);
@@ -33,6 +34,7 @@ const JobUploadPage = () => {
         job_description: job_description || "Enter Job Description",
         job_code: job_code || "Enter Job Code",
         priority: priority || "Enter Priority",
+        job_status: JobStatus || "Enter the job status",
       });
       console.log(response);
     } catch (error) {
@@ -173,6 +175,20 @@ const JobUploadPage = () => {
                   <option value="high">High</option>
                   <option value="medium">Medium</option>
                   <option value="low">Low</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-stone-600 mb-2">
+                  Job Status
+                </label>
+                <select
+                  onChange={(e) => {
+                    SetJobStatus(e.target.value);
+                  }}
+                  className="w-full px-4 py-2 rounded-lg border border-stone-200 focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 transition-colors duration-300"
+                >
+                  <option value="Active">Active</option>
+                  <option value="Not Active">Not Active</option>
                 </select>
               </div>
             </div>

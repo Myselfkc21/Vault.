@@ -372,11 +372,12 @@ app.post("/upload_jobs", authenticateJWT, async (req, res) => {
       job_description,
       job_code,
       priority,
+      job_status,
     } = req.body;
     console.log(req.body);
     const created_at = new Date();
     const result = await pool.query(
-      "INSERT INTO jobs (job_id, user_id, job_title, client_bill, pay_rate, client, end_client, location, status, job_description, job_code, created_at, priority) VALUES (default, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *",
+      "INSERT INTO jobs (job_id, user_id, job_title, client_bill, pay_rate, client, end_client, location, status, job_description, job_code, created_at, priority,job_status) VALUES (default, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12,$13) RETURNING *",
       [
         user_id,
         job_title,
@@ -390,6 +391,7 @@ app.post("/upload_jobs", authenticateJWT, async (req, res) => {
         job_code,
         created_at,
         priority,
+        job_status,
       ]
     );
     return res.status(200).json({ message: "Job uploaded successfully" });
@@ -433,9 +435,10 @@ app.put("/update_job/:job_id", authenticateJWT, async (req, res) => {
     job_description,
     job_code,
     priority,
+    job_status,
   } = req.body;
   const result = await pool.query(
-    "update jobs set job_title=$1, client_bill=$2, pay_rate=$3, client=$4, end_client=$5, location=$6, status=$7, job_description=$8, job_code=$9, priority=$10 where job_id=$11",
+    "update jobs set job_title=$1, client_bill=$2, pay_rate=$3, client=$4, end_client=$5, location=$6, status=$7, job_description=$8, job_code=$9, priority=$10,job_status=$12 where job_id=$11 returning *",
     [
       job_title,
       client_bill,
@@ -448,8 +451,10 @@ app.put("/update_job/:job_id", authenticateJWT, async (req, res) => {
       job_code,
       priority,
       job_id,
+      job_status,
     ]
   );
+  console.log(result);
   return res.status(200).json({ message: "Job updated successfully" });
 });
 
@@ -1001,6 +1006,219 @@ app.get("/get_all_logins", authenticateJWT, async (req, res) => {
 
 //   }
 // })
+//-------------------login-----------------------======
+
+app.get("/get-submission/:jobId", authenticateJWT, async (req, res) => {
+  try {
+    const user = req.user.id;
+    const jobId = req.params.jobId;
+    console.log("jobId from get submission", jobId);
+    const result = await pool.query(
+      "Select * from submissions where user_id=$1 and job_id=$2",
+      [user, jobId]
+    );
+    return res.status(200).json({ submissions: result.rows });
+  } catch (error) {
+    console.error("Error getting job:", error);
+    res
+      .status(500)
+      .json({ message: "Error getting job", error: error.message });
+  }
+});
+
+app.post("/add_submission/:jobId", authenticateJWT, async (req, res) => {
+  try {
+    const user = req.user.id;
+    const {
+      fullName,
+      workAuthorization,
+      email,
+      contactNumber,
+      payRate,
+      clientBillRate,
+      applicationStatus,
+    } = req.body;
+    const jobId = req.params.jobId;
+    console.log("hi");
+    console.log(req.body);
+    const result = await pool.query(
+      "insert into submissions (submission_id,job_id,user_id,full_name,work_authorization,email_address,contact_number,pay_rate,client_bill,application_status) values (default,$1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *",
+      [
+        jobId,
+        user,
+        fullName,
+        workAuthorization,
+        email,
+        contactNumber,
+        payRate,
+        clientBillRate,
+        applicationStatus,
+      ]
+    );
+
+    console.log(result.rows);
+    return res.status(200).json({ users: result.rows });
+  } catch (error) {
+    console.error("Error getting job:", error);
+    res
+      .status(500)
+      .json({ message: "Error getting job", error: error.message });
+  }
+});
+
+app.put("/update-status/:submissionId", authenticateJWT, async (req, res) => {
+  try {
+    const user = req.user.id;
+    const submissionId = req.params.submissionId;
+    const { applicantStatus } = req.body;
+    console.log("mutd", req.body);
+    console.log("hi", applicantStatus, submissionId, user);
+    const result = await pool.query(
+      "update submissions set application_status=$1 where submission_id=$2 and user_id=$3 returning *",
+      [applicantStatus, submissionId, user]
+    );
+    return res.status(200).json({ users: result.rows });
+  } catch (error) {
+    console.error("Error getting job:", error);
+    res
+      .status(500)
+      .json({ message: "Error getting job", error: error.message });
+  }
+});
+
+//----------------------dashBoard numbers-------------------//
+
+app.get("/get-submission-numbers", authenticateJWT, async (req, res) => {
+  try {
+    const user = req.user.id;
+    const result = await pool.query(
+      "select count(*) from submissions where user_id=$1",
+      [user]
+    );
+    const data = await pool.query(
+      "select * from submissions where user_id=$1 ",
+      [user]
+    );
+    const count = result.rows[0].count;
+    return res.status(200).json({ count: count, data: data.rows });
+  } catch (error) {
+    console.error("Error getting job:", error);
+    res
+      .status(500)
+      .json({ message: "Error getting job", error: error.message });
+  }
+});
+app.get("/get-Client-Submission-numbers", authenticateJWT, async (req, res) => {
+  try {
+    const user = req.user.id;
+    const result = await pool.query(
+      "select count(*) from submissions where user_id=$1 and application_status='Client Submission'",
+      [user]
+    );
+    const data = await pool.query(
+      "select * from submissions where user_id=$1 and application_status='Client Submission'",
+      [user]
+    );
+    const count = result.rows[0].count;
+    return res.status(200).json({ count: count, data: data.rows });
+  } catch (error) {
+    console.error("Error getting job:", error);
+    res
+      .status(500)
+      .json({ message: "Error getting job", error: error.message });
+  }
+});
+app.get(
+  "/get-Interview-Scheduled-numbers",
+  authenticateJWT,
+  async (req, res) => {
+    try {
+      const user = req.user.id;
+      const result = await pool.query(
+        "select count(*) from submissions where user_id=$1 and application_status='Interview Scheduled'",
+        [user]
+      );
+      const data = await pool.query(
+        "select * from submissions where user_id=$1 and application_status='Interview Scheduled'",
+        [user]
+      );
+      const count = result.rows[0].count;
+      return res.status(200).json({ count: count, data: data.rows });
+    } catch (error) {
+      console.error("Error getting job:", error);
+      res
+        .status(500)
+        .json({ message: "Error getting job", error: error.message });
+    }
+  }
+);
+app.get("/get-Active-Jobs-numbers", authenticateJWT, async (req, res) => {
+  try {
+    const user = req.user.id;
+    const result = await pool.query(
+      "select count(*) from jobs where user_id=$1 and job_status='Active'",
+      [user]
+    );
+    const data = await pool.query(
+      "select * from jobs where user_id=$1 and job_status='Active'",
+      [user]
+    );
+    console.log(data, result);
+    const count = result.rows[0].count;
+    return res.status(200).json({ count: count, data: data.rows });
+  } catch (error) {
+    console.error("Error getting job:", error);
+    res
+      .status(500)
+      .json({ message: "Error getting job", error: error.message });
+  }
+});
+app.get("/get-Jobs-numbers", authenticateJWT, async (req, res) => {
+  try {
+    const user = req.user.id;
+    const result = await pool.query(
+      "select count(*) from jobs where user_id=$1",
+      [user]
+    );
+    const data = await pool.query("select * from jobs where user_id=$1", [
+      user,
+    ]);
+    console.log(data, result);
+    const count = result.rows[0].count;
+    return res.status(200).json({ count: count, data: data.rows });
+  } catch (error) {
+    console.error("Error getting job:", error);
+    res
+      .status(500)
+      .json({ message: "Error getting job", error: error.message });
+  }
+});
+
+app.get(
+  "/get-Client-Served Jobs-numbers",
+  authenticateJWT,
+  async (req, res) => {
+    try {
+      const user = req.user.id;
+      const result = await pool.query(
+        "select count(*) from submissions where user_id=$1 and application_status='Client Served Jobs'",
+        [user]
+      );
+      const data = await pool.query(
+        "select * from submissions where user_id=$1 and application_status='Client Served Jobs'",
+        [user]
+      );
+      const count = result.rows[0].count;
+      return res.status(200).json({ count: count, data: data.rows });
+    } catch (error) {
+      console.error("Error getting job:", error);
+      res
+        .status(500)
+        .json({ message: "Error getting job", error: error.message });
+    }
+  }
+);
+
 pool
   .connect()
   .then((client) => {
